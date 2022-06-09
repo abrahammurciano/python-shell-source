@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "shell-source"
+version = "0.1.0"
+description = "A python module for sourcing variables from shell scripts"
+authors = ["Abraham Murciano <abrahammurciano@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/abrahammurciano/python-shell-source"
+documentation = "https://abrahammurciano.github.io/python-shell-source/shell_source/"
+keywords = ["shell", "source", "environment"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+importlib-metadata = "^4.11.4"
+toml = "^0.10.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.2"
+black = "^22.3.0"
+types-toml = "^0.10.7"
+pdoc3 = "^0.10.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

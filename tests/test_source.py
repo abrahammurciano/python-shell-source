@@ -1,4 +1,3 @@
-from functools import cached_property
 import os
 from pathlib import Path
 import re
@@ -40,7 +39,7 @@ class Shell:
             "env_var_name_2": "env_var_value_2",
         }
 
-    @cached_property
+    @property
     def all_variables(self) -> Mapping[str, str]:
         return {**self.local_variables, **self.environment_variables}
 
@@ -59,7 +58,6 @@ class Shell:
 
 @pytest.fixture(
     params=[
-        pytest.param(Shell("sh"), id="sh"),
         pytest.param(Shell("bash"), id="bash"),
         pytest.param(
             Shell(
@@ -68,6 +66,14 @@ class Shell:
                 setlocal="set {name}='{value}'\n",
             ),
             id="tcsh",
+        ),
+        pytest.param(
+            Shell(
+                "csh",
+                setenv="setenv {name} '{value}'\n",
+                setlocal="set {name}='{value}'\n",
+            ),
+            id="csh",
         ),
         pytest.param(
             Shell("fish", setlocal="set {name} '{value}'\n"),
@@ -145,10 +151,7 @@ def test_failing_script(shell: Shell, failing_script: Path):
 
 
 def test_printing_script(
-    shell: Shell,
-    printing_script: Path,
-    message: str,
-    capfd: pytest.CaptureFixture,
+    shell: Shell, printing_script: Path, message: str, capfd: pytest.CaptureFixture
 ):
     source(printing_script, shell=shell.cmd)
     captured = capfd.readouterr()
@@ -157,10 +160,12 @@ def test_printing_script(
 
 
 def test_printing_script_to_null(
-    shell: Shell, printing_script: Path, message: str, tmpdir: Path
+    shell: Shell, printing_script: Path, message: str, capfd: pytest.CaptureFixture
 ):
     source(printing_script, shell=shell.cmd, redirect_stdout_to="/dev/null")
-    # TODO: Check stdout and stderr are empty
+    captured = capfd.readouterr()
+    assert message not in captured.out
+    assert message not in captured.err
 
 
 def test_printing_script_to_file(

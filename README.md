@@ -45,7 +45,7 @@ If you don't want to obtain any local variables set by the script, but only want
 
 ### Supporting Different Shells
 
-This module has been tested to work with `sh`, `bash`, `zsh`, `tcsh`, `ksh`, and `fish`. You can use any other shell that's somewhat posix compliant, but it it doesn't work, you may use the `ShellConfig` class to indicate to `source()` how to interact with your shell.
+This module has been tested to work with `bash`, `zsh`, `csh`, `tcsh`, `ksh`, and `fish`. You can use any other shell that's somewhat posix compliant, but it it doesn't work, you may use the `ShellConfig` class to indicate to `source()` how to interact with your shell.
 
 The class `ShellConfig` contains several string templates which are used to run the necessary commands with the shell. If the shell you want to use doesn't support any of the commands set by default in that class, you can pass an instance of `ShellConfig` to `source()` to override the default templates.
 

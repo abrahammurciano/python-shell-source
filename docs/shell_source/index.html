@@ -24,21 +24,18 @@ A python module for sourcing variables from shell scripts …" />
 </header>
 <section id="section-intro">
 <h1 id="python-shell-source">python-shell-source</h1>
-<p>A python module for sourcing variables from shell scripts</p>
+<p>A python module for sourcing variables from shell scripts.</p>
 <h2 id="installation">Installation</h2>
 <pre><code class="language-sh">$ pip install shell-source
 </code></pre>
 <h2 id="documentation">Documentation</h2>
 <p>The full documentation is available <a href="https://abrahammurciano.github.io/python-shell-source/shell_source">here</a></p>
 <h2 id="usage">Usage</h2>
-<p>This module provides a function <code><a title="shell_source.source" href="source.html">shell_source.source</a></code> which attempts to mimic the shell's <code><a title="shell_source.source" href="source.html">shell_source.source</a></code> command.</p>
+<p>This module provides a function <code><a title="shell_source.source" href="source.html">shell_source.source</a></code> which attempts to mimic the shell's source command.</p>
 <p>The purpose of this function is to allow you to run a shell script which sets either environment variables or local variables, and then give you access to those variables. Normally this is not a straght-forward task, but this function achieves it by running the script in its intended shell then injecting commands to the shell to print its local variables and its environment variables. Finally it collects the shell's stdout and parses it to return to you with exactly the data you asked for.</p>
 <h3 id="basic-usage">Basic Usage</h3>
-<p>If you just pass a script (and possibly an interpreter) you'll get back all the environment variables and local variables visible to the script.</p>
+<p>If you just pass a script and an interpreter you'll get back all the environment variables and local variables visible to and set by the script.</p>
 <pre><code class="language-py">&gt;&gt;&gt; from shell_source import source
-&gt;&gt;&gt; # determines which shell to use from the shebang
-&gt;&gt;&gt; variables = source(&quot;path/to/script.sh&quot;)
-&gt;&gt;&gt; # Specify exactly which interpreter you want (recommended)
 &gt;&gt;&gt; variables = source(&quot;path/to/script.sh&quot;, &quot;bash&quot;)
 &gt;&gt;&gt; # It returns a dictionary of local and environment variables known by the script.
 &gt;&gt;&gt; variables
@@ -46,11 +43,27 @@ A python module for sourcing variables from shell scripts …" />
 </code></pre>
 <h3 id="requesting-specific-variables">Requesting Specific Variables</h3>
 <p>If you specify the argument <code>variables</code>, then only those variables you passed will be present as keys in the returned dictionary.</p>
-<pre><code class="language-py">&gt;&gt;&gt; source(&quot;path/to/script.sh&quot;, variables=(&quot;foo&quot;, &quot;bar&quot;, &quot;biz&quot;))
+<pre><code class="language-py">&gt;&gt;&gt; source(&quot;path/to/script.sh&quot;, &quot;csh&quot;, variables=(&quot;foo&quot;, &quot;bar&quot;, &quot;biz&quot;))
 {&quot;foo&quot;: ..., &quot;bar&quot;: ..., &quot;biz&quot;, ...}
 </code></pre>
 <h3 id="ignoring-local-variables">Ignoring Local Variables</h3>
 <p>If you don't want to obtain any local variables set by the script, but only want the environment variables, you can pass <code>ignore_locals=True</code>.</p>
+<h3 id="supporting-different-shells">Supporting Different Shells</h3>
+<p>This module has been tested to work with <code>bash</code>, <code>zsh</code>, <code>csh</code>, <code>tcsh</code>, <code>ksh</code>, and <code>fish</code>. You can use any other shell that's somewhat posix compliant and supports the keyword "source", but it it doesn't work, you may use the <code>ShellConfig</code> class to indicate to <code><a title="shell_source.source" href="source.html">shell_source.source</a></code> how to interact with your shell.</p>
+<p>The class <code>ShellConfig</code> contains several string templates which are used to run the necessary commands with the shell. If the shell you want to use doesn't support any of the commands set by default in that class, you can pass an instance of <code>ShellConfig</code> to <code><a title="shell_source.source" href="source.html">shell_source.source</a></code> to override the default templates.</p>
+<p>For example, imagine you have a strange shell that uses <code>@foo</code> instead of <code>$foo</code> to get the value of the variable foo, and that redirects the output of a command like this:</p>
+<pre><code>$ redirect 'echo hello' to /path/to/file
+</code></pre>
+<p>You would call <code><a title="shell_source.source" href="source.html">shell_source.source</a></code> like this to tell it how to interact with your shell:</p>
+<pre><code class="language-py">source(
+    &quot;path/to/script.sh&quot;,
+    &quot;myshell&quot;,
+    shell_config=ShellConfig(
+        redirect_stdout=&quot;redirect '{cmd}' to {file}&quot;,
+        get_var=&quot;@{var}&quot;,
+    )
+)
+</code></pre>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
@@ -83,6 +96,7 @@ A python module for sourcing variables from shell scripts …" />
 <li><a href="#basic-usage">Basic Usage</a></li>
 <li><a href="#requesting-specific-variables">Requesting Specific Variables</a></li>
 <li><a href="#ignoring-local-variables">Ignoring Local Variables</a></li>
+<li><a href="#supporting-different-shells">Supporting Different Shells</a></li>
 </ul>
 </li>
 </ul>

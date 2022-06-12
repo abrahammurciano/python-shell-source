@@ -9,6 +9,7 @@ jobs:
   docs_and_format:
     runs-on: ubuntu-latest
     permissions:
+      contents: write
       pull-requests: write
     steps:
       - name: Check out repository code
@@ -34,6 +35,6 @@ jobs:
         with:
           title: Autoformat and Documentation
           commit-message: autoformatted code and generated docs
-          branch: post-merge
+          branch: docs-and-format
           token: ${{ github.token }}
           labels: automerge,notest

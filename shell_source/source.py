@@ -33,7 +33,7 @@ def source(
         check: If True, a subprocess.CalledProcessError is raised if the script fails.
         env: A dictionary of environment variables to use. By default the environment is cleared. To keep the current environment, pass `None` or `os.environ`.
         redirect_output_to: The file to send the output of the script to. By default it's sent to stderr. It cannot be sent to stdout. To suppress it completely, pass "/dev/null".
-        shell_config: An instance of ShellConfig that specifies how to interact with the shell. If your shell is (somewhat) posix-compliant the default should work.
+        shell_config: An instance of ShellConfig that specifies how to interact with the given shell. If your shell is (somewhat) posix-compliant the default should work.
     """
     return _parse_stdout(
         subprocess.run(

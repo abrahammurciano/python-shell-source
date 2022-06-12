@@ -1,4 +1,4 @@
-name: Test
+name: Skip Tests
 on:
   pull_request:
     branches:

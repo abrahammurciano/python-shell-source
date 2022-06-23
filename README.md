@@ -42,23 +42,16 @@ If you don't want to obtain any local variables set by the script, but only want
 
 ### Supporting Different Shells
 
-This module has been tested to work with `bash`, `zsh`, `csh`, `tcsh`, `ksh`, and `fish`. You can use any other shell that's somewhat posix compliant and supports the keyword "source", but it it doesn't work, you may use the `ShellConfig` class to indicate to `source` how to interact with your shell.
+This module has been tested to work with `bash`, `zsh`, `tcsh`, and `ksh`. You can use any other shell that's somewhat posix compliant and supports the keyword "source", but it it doesn't work, you may use the `ShellConfig` class to indicate to `source` how to interact with your shell.
 
 The class `ShellConfig` contains several string templates which are used to run the necessary commands with the shell. If the shell you want to use doesn't support any of the commands set by default in that class, you can pass an instance of `ShellConfig` to `source` to override the default templates.
 
-For example, imagine you have a strange shell that uses `@foo` instead of `$foo` to get the value of the variable foo, and that redirects the output of a command like this:
-```
-$ redirect 'echo hello' to /path/to/file
-```
+For example, `csh` and `fish` are not supported by default, (specifically because they don't have the variable `$?` to get the exit status of the last command,) but we can source a script for one of these shells anyways by passing a `ShellConfig` instance which will declare how to get the exit code of the previous command.
 
-You would call `source` like this to tell it how to interact with your shell:
 ```py
 source(
-	"path/to/script.sh",
-	"myshell",
-	shell_config=ShellConfig(
-		redirect_stdout="redirect '{cmd}' to {file}",
-		get_var="@{var}",
-	)
+	"path/to/script.csh",
+	"csh",
+	shell_config=ShellConfig(prev_exit_code="$status")
 )
 ```

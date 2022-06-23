@@ -1,25 +1,21 @@
+from dataclasses import dataclass
 import os
 from pathlib import Path
 import re
 import shlex
 import shutil
 import subprocess
-from typing import Mapping, TextIO
-from shell_source import source
+from typing import Any, Dict, Mapping, Optional, TextIO
+from shell_source import source, ShellConfig
 import pytest
 
 
+@dataclass
 class Shell:
-    def __init__(
-        self,
-        cmd: str,
-        *,
-        setenv: str = "export {name}='{value}'\n",
-        setlocal: str = "{name}='{value}'\n",
-    ):
-        self.cmd = cmd
-        self.setenv = setenv
-        self.setlocal = setlocal
+    cmd: str
+    setenv: str = "export {name}='{value}'\n"
+    setlocal: str = "{name}='{value}'\n"
+    config: Optional[ShellConfig] = None
 
     @property
     def name(self) -> str:
@@ -72,11 +68,16 @@ class Shell:
                 "csh",
                 setenv="setenv {name} '{value}'\n",
                 setlocal="set {name}='{value}'\n",
+                config=ShellConfig(prev_exit_code="$status"),
             ),
             id="csh",
         ),
         pytest.param(
-            Shell("fish", setlocal="set {name} '{value}'\n"),
+            Shell(
+                "fish",
+                setlocal="set {name} '{value}'\n",
+                config=ShellConfig(prev_exit_code="$status"),
+            ),
             id="fish",
         ),
         pytest.param(Shell("ksh"), id="ksh"),
@@ -123,55 +124,83 @@ def printing_script(tmpdir: Path, shell: Shell, message: str) -> Path:
     return script
 
 
-def test_all_vars(shell: Shell, script: Path):
-    result = source(script, shell=shell.cmd)
+@pytest.fixture(
+    params=[pytest.param(True, id="check"), pytest.param(False, id="no_check")],
+)
+def check(request) -> bool:
+    return request.param
+
+
+@pytest.fixture
+def source_kwargs(shell: Shell, check: bool) -> Dict[str, Any]:
+    return {
+        "shell": shell.cmd,
+        "check": check,
+        **({"shell_config": shell.config} if shell.config else {}),
+    }
+
+
+def test_all_vars(shell: Shell, script: Path, source_kwargs: Dict[str, Any]):
+    result = source(script, **source_kwargs)
     for name, value in shell.all_variables.items():
         assert result[name] == value
 
 
-def test_only_env(shell: Shell, script: Path):
-    result = source(script, shell=shell.cmd, ignore_locals=True)
+def test_only_env(shell: Shell, script: Path, source_kwargs: Dict[str, Any]):
+    result = source(script, ignore_locals=True, **source_kwargs)
     for name, value in shell.environment_variables.items():
         assert result[name] == value
     for name, value in shell.local_variables.items():
         assert name not in result
 
 
-def test_specific_vars(shell: Shell, script: Path):
+def test_specific_vars(shell: Shell, script: Path, source_kwargs: Dict[str, Any]):
     variables = (
         list(shell.local_variables)[::2] + list(shell.environment_variables)[::2]
     )
-    result = source(script, shell=shell.cmd, variables=variables)
+    result = source(script, variables=variables, **source_kwargs)
     assert result == {name: shell.all_variables[name] for name in variables}
 
 
 def test_failing_script(shell: Shell, failing_script: Path):
+    shell_config_arg: Dict[str, Any] = (
+        {"shell_config": shell.config} if shell.config else {}
+    )
     with pytest.raises(subprocess.CalledProcessError):
-        source(failing_script, shell=shell.cmd, check=True)
+        source(failing_script, shell=shell.cmd, check=True, **shell_config_arg)
 
 
 def test_printing_script(
-    shell: Shell, printing_script: Path, message: str, capfd: pytest.CaptureFixture
+    printing_script: Path,
+    message: str,
+    capfd: pytest.CaptureFixture,
+    source_kwargs: Dict[str, Any],
 ):
-    source(printing_script, shell=shell.cmd)
+    source(printing_script, **source_kwargs)
     captured = capfd.readouterr()
     assert message not in captured.out
     assert message in captured.err
 
 
 def test_printing_script_to_null(
-    shell: Shell, printing_script: Path, message: str, capfd: pytest.CaptureFixture
+    printing_script: Path,
+    message: str,
+    capfd: pytest.CaptureFixture,
+    source_kwargs: Dict[str, Any],
 ):
-    source(printing_script, shell=shell.cmd, redirect_stdout_to="/dev/null")
+    source(printing_script, redirect_stdout_to="/dev/null", **source_kwargs)
     captured = capfd.readouterr()
     assert message not in captured.out
     assert message not in captured.err
 
 
 def test_printing_script_to_file(
-    shell: Shell, printing_script: Path, message: str, tmpdir: Path
+    printing_script: Path,
+    message: str,
+    tmpdir: Path,
+    source_kwargs: Dict[str, Any],
 ):
     stdout_log = tmpdir / "source.stdout"
-    source(printing_script, shell=shell.cmd, redirect_stdout_to=stdout_log)
+    source(printing_script, redirect_stdout_to=stdout_log, **source_kwargs)
     with stdout_log.open() as f:
         assert message in f.read()

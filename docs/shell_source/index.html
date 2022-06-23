@@ -49,19 +49,13 @@ A python module for sourcing variables from shell scripts …" />
 <h3 id="ignoring-local-variables">Ignoring Local Variables</h3>
 <p>If you don't want to obtain any local variables set by the script, but only want the environment variables, you can pass <code>ignore_locals=True</code>.</p>
 <h3 id="supporting-different-shells">Supporting Different Shells</h3>
-<p>This module has been tested to work with <code>bash</code>, <code>zsh</code>, <code>csh</code>, <code>tcsh</code>, <code>ksh</code>, and <code>fish</code>. You can use any other shell that's somewhat posix compliant and supports the keyword "source", but it it doesn't work, you may use the <code>ShellConfig</code> class to indicate to <code><a title="shell_source.source" href="source.html">shell_source.source</a></code> how to interact with your shell.</p>
+<p>This module has been tested to work with <code>bash</code>, <code>zsh</code>, <code>tcsh</code>, and <code>ksh</code>. You can use any other shell that's somewhat posix compliant and supports the keyword "source", but it it doesn't work, you may use the <code>ShellConfig</code> class to indicate to <code><a title="shell_source.source" href="source.html">shell_source.source</a></code> how to interact with your shell.</p>
 <p>The class <code>ShellConfig</code> contains several string templates which are used to run the necessary commands with the shell. If the shell you want to use doesn't support any of the commands set by default in that class, you can pass an instance of <code>ShellConfig</code> to <code><a title="shell_source.source" href="source.html">shell_source.source</a></code> to override the default templates.</p>
-<p>For example, imagine you have a strange shell that uses <code>@foo</code> instead of <code>$foo</code> to get the value of the variable foo, and that redirects the output of a command like this:</p>
-<pre><code>$ redirect 'echo hello' to /path/to/file
-</code></pre>
-<p>You would call <code><a title="shell_source.source" href="source.html">shell_source.source</a></code> like this to tell it how to interact with your shell:</p>
+<p>For example, <code>csh</code> and <code>fish</code> are not supported by default, (specifically because they don't have the variable <code>$?</code> to get the exit status of the last command,) but we can source a script for one of these shells anyways by passing a <code>ShellConfig</code> instance which will declare how to get the exit code of the previous command.</p>
 <pre><code class="language-py">source(
-    &quot;path/to/script.sh&quot;,
-    &quot;myshell&quot;,
-    shell_config=ShellConfig(
-        redirect_stdout=&quot;redirect '{cmd}' to {file}&quot;,
-        get_var=&quot;@{var}&quot;,
-    )
+    &quot;path/to/script.csh&quot;,
+    &quot;csh&quot;,
+    shell_config=ShellConfig(prev_exit_code=&quot;$status&quot;)
 )
 </code></pre>
 </section>

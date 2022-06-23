@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "shell-source"
-version = "0.1.1"
+version = "1.0.0"
 description = "A python module for sourcing variables from shell scripts"
 authors = ["Abraham Murciano <abrahammurciano@gmail.com>"]
 license = "MIT"

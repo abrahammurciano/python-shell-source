@@ -3,7 +3,7 @@ import re
 import shlex
 import subprocess
 from pathlib import Path
-from typing import Collection, Dict, Iterable, Mapping, Sequence, Union
+from typing import Collection, Dict, Iterable, Mapping, Optional, Sequence, Union
 from .shell_config import ShellConfig
 
 
@@ -16,8 +16,8 @@ def source(
     *,
     variables: Collection[str] = (),
     ignore_locals: bool = False,
-    check: bool = False,
-    env: Mapping[str, str] = {},
+    check: bool = True,
+    env: Optional[Mapping[str, str]] = None,
     redirect_stdout_to: Union[str, Path] = "/dev/stderr",
     shell_config: ShellConfig = ShellConfig(),
 ) -> Dict[str, str]:
@@ -29,10 +29,10 @@ def source(
         script: The shell script to source.
         shell: The shell to use. If the shell you give is in the path it's name suffices, otherwise give the path to it. Default is sh.
         variables: The names of the variables set in the script to return. By default, all variables are returned.
-        ignore_locals: If True, no local variables set by the script are returned.
-        check: If True, a subprocess.CalledProcessError is raised if the script fails.
-        env: A dictionary of environment variables to use. By default the environment is cleared. To keep the current environment, pass `None` or `os.environ`.
-        redirect_output_to: The file to send the output of the script to. By default it's sent to stderr. It cannot be sent to stdout. To suppress it completely, pass "/dev/null".
+        ignore_locals: If True, no local variables set by the script are returned. Default is False.
+        check: If True, a subprocess.CalledProcessError is raised if the script fails. Default is True.
+        env: A dictionary of environment variables to use for the script. By default the environment is inherited.
+        redirect_output_to: The file to send the output of the script to. By default it's sent to stderr so it will still be printed on the terminal. It cannot be sent to stdout. To suppress it completely, pass "/dev/null".
         shell_config: An instance of ShellConfig that specifies how to interact with the given shell. If your shell is (somewhat) posix-compliant the default should work.
     """
     return _parse_stdout(

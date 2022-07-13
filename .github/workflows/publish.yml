@@ -24,5 +24,15 @@ jobs:
         run: poetry build
       - name: Check Build
         run: pip install dist/*.whl
-      - name: Publish Package
+      - name: Install conda-build
+        run: pip install git+https://github.com/conda/conda-build # When 3.21.10 or greater is released replace with "conda install conda-build"
+      - name: Build and Publish Conda Package
+        uses: amauryval/publish_conda_package_action@2.0.3
+        with:
+          CondaDir: 'conda-recipe'
+          Channels: 'conda-forge'
+          Platforms: 'noarch'
+          CondaUsername: ${{ secrets.ANACONDA_USERNAME }}
+          CondaPassword: ${{ secrets.ANACONDA_PASSWORD }}
+      - name: Publish Pip Package
         run: poetry publish -u ${{ secrets.PYPI_USERNAME }} -p ${{ secrets.PYPI_PASSWORD }}

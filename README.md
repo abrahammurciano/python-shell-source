@@ -2,8 +2,13 @@
 A python module for sourcing variables from shell scripts.
 
 ## Installation
+
+You can install this package with pip or conda.
 ```sh
 $ pip install shell-source
+```
+```sh
+$ conda install -c abrahammurciano shell-source
 ```
 
 ## Documentation

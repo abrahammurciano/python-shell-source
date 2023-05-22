@@ -18,7 +18,7 @@ The full documentation is available [here](https://abrahammurciano.github.io/pyt
 ## Usage
 This module provides a function `source` which attempts to mimic the shell's source command.
 
-The purpose of this function is to allow you to run a shell script which sets either environment variables or local variables, and then give you access to those variables. Normally this is not a straght-forward task, but this function achieves it by running the script in its intended shell then injecting commands to the shell to print its local variables and its environment variables. Finally it collects the shell's stdout and parses it to return to you with exactly the data you asked for.
+The purpose of this function is to allow you to run a shell script which sets either environment variables or local variables, and then give you access to those variables. Normally this is not a straght-forward task, but this function achieves it by running the script in its intended shell then injecting commands to the shell to write its local variables and its environment variables to a temporary file. Finally it reads the temporary file and parses it to return to you with exactly the data you asked for.
 
 ### Basic Usage
 

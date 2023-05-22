@@ -53,6 +53,7 @@ def source(
             input=stdin,
             text=True,
             check=check,
+            **subprocess_kwargs,
         )
         return _parse_vars(vars_file.read_text())
 

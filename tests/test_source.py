@@ -207,3 +207,24 @@ def test_arg_printing_script(
     source(script, **source_kwargs)
     captured = capfd.readouterr()
     assert message == captured.out.strip()
+
+
+def test_suppressed_printing_script(
+    printing_script: Path,
+    capfd: pytest.CaptureFixture,
+    source_kwargs: Dict[str, Any],
+):
+    source(printing_script, **source_kwargs, stdout=subprocess.DEVNULL)
+    captured = capfd.readouterr()
+    assert "" == captured.out.strip()
+
+
+def test_suppressed_printing_script_with_redirection(
+    printing_script: Path,
+    capfd: pytest.CaptureFixture,
+    source_kwargs: Dict[str, Any],
+):
+    script = f"{printing_script} >> /dev/null"
+    source(script, **source_kwargs)
+    captured = capfd.readouterr()
+    assert "" == captured.out.strip()

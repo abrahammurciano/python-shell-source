@@ -31,7 +31,7 @@
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="shell_source.source.source"><code class="name flex">
-<span>def <span class="ident">source</span></span>(<span>script: Union[str, pathlib.Path], shell: str = 'sh', *, variables: Collection[str] = (), ignore_locals: bool = False, check: bool = True, env: Optional[Mapping[str, str]] = None, redirect_stdout_to: Union[str, pathlib.Path] = '/dev/stderr', shell_config: <a title="shell_source.shell_config.ShellConfig" href="shell_config.html#shell_source.shell_config.ShellConfig">ShellConfig</a> = ShellConfig(source_cmd=&#x27;source {script}&#x27;, exit_cmd=&#x27;exit {code}&#x27;, redirect_stdout=&#x27;{cmd} &gt; {file}&#x27;, boolean_or=&#x27;{cmd1} || {cmd2}&#x27;, get_var=&#x27;${var}&#x27;, get_all_locals=&#x27;set&#x27;, prev_exit_code=&#x27;$?&#x27;)) ‑> Dict[str, str]</span>
+<span>def <span class="ident">source</span></span>(<span>script: Union[str, pathlib.Path], shell: str = 'sh', *, variables: Collection[str] = (), ignore_locals: bool = False, shell_config: <a title="shell_source.shell_config.ShellConfig" href="shell_config.html#shell_source.shell_config.ShellConfig">ShellConfig</a> = ShellConfig(source_cmd=&#x27;source {script}&#x27;, exit_cmd=&#x27;exit {code}&#x27;, redirect_stdout=&#x27;{cmd} &gt;&gt; {file}&#x27;, boolean_or=&#x27;{cmd1} || {cmd2}&#x27;, get_var=&#x27;${var}&#x27;, get_all_locals=&#x27;set&#x27;, prev_exit_code=&#x27;$?&#x27;), **subprocess_kwargs) ‑> Dict[str, str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Run a shell script and return its variables as a dictionary.</p>
@@ -41,21 +41,17 @@
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>script</code></strong></dt>
-<dd>The shell script to source.</dd>
+<dd>The shell script to source. It may contain arguments, file redirections, etc so long as it is supported by the shell you give.</dd>
 <dt><strong><code>shell</code></strong></dt>
-<dd>The shell to use. If the shell you give is in the path it's name suffices, otherwise give the path to it. Default is sh.</dd>
+<dd>The shell to use. If the shell you give is in the path it's name suffices, otherwise give the path to it. You may also pass flags, such as -x or -e. Default is "sh".</dd>
 <dt><strong><code>variables</code></strong></dt>
 <dd>The names of the variables set in the script to return. By default, all variables are returned.</dd>
 <dt><strong><code>ignore_locals</code></strong></dt>
 <dd>If True, no local variables set by the script are returned. Default is False.</dd>
-<dt><strong><code>check</code></strong></dt>
-<dd>If True, a subprocess.CalledProcessError is raised if the script fails. Default is True.</dd>
-<dt><strong><code>env</code></strong></dt>
-<dd>A dictionary of environment variables to use for the script. By default the environment is inherited.</dd>
-<dt><strong><code>redirect_output_to</code></strong></dt>
-<dd>The file to send the output of the script to. By default it's sent to stderr so it will still be printed on the terminal. It cannot be sent to stdout. To suppress it completely, pass "/dev/null".</dd>
 <dt><strong><code>shell_config</code></strong></dt>
 <dd>An instance of ShellConfig that specifies how to interact with the given shell. If your shell is (somewhat) posix-compliant the default should work.</dd>
+<dt><strong><code>subprocess_kwargs</code></strong></dt>
+<dd>Any other keyword arguments are passed to subprocess.run. By default, check=True is passed. Also, args, input and text are not allowed.</dd>
 </dl></div>
 </dd>
 </dl>

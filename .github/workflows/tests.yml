@@ -22,7 +22,7 @@ jobs:
         with:
           python-version: 3.7
       - name: Get Poetry
-        uses: abatilo/actions-poetry@v2.1.3
+        run: pip install poetry
       - name: Install
         run: poetry install
       - name: Run Tests

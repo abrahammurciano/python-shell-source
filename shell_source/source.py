@@ -3,9 +3,10 @@ import re
 import shlex
 import subprocess
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Collection, Dict, Iterable, Mapping, Optional, Sequence, Union
-from .shell_config import ShellConfig
 
+from .shell_config import ShellConfig
 
 logger = logging.getLogger(__name__)
 
@@ -16,48 +17,50 @@ def source(
     *,
     variables: Collection[str] = (),
     ignore_locals: bool = False,
-    check: bool = True,
-    env: Optional[Mapping[str, str]] = None,
-    redirect_stdout_to: Union[str, Path] = "/dev/stderr",
     shell_config: ShellConfig = ShellConfig(),
+    **subprocess_kwargs,
 ) -> Dict[str, str]:
     """Run a shell script and return its variables as a dictionary.
 
     > NOTE: If the script defines variables with newlines in their values it is undefined behaviour, though it will not raise an exception.
 
     Args:
-        script: The shell script to source.
-        shell: The shell to use. If the shell you give is in the path it's name suffices, otherwise give the path to it. Default is sh.
+        script: The shell script to source. It may contain arguments, file redirections, etc so long as it is supported by the shell you give.
+        shell: The shell to use. If the shell you give is in the path it's name suffices, otherwise give the path to it. You may also pass flags, such as -x or -e. Default is "sh".
         variables: The names of the variables set in the script to return. By default, all variables are returned.
         ignore_locals: If True, no local variables set by the script are returned. Default is False.
-        check: If True, a subprocess.CalledProcessError is raised if the script fails. Default is True.
-        env: A dictionary of environment variables to use for the script. By default the environment is inherited.
-        redirect_output_to: The file to send the output of the script to. By default it's sent to stderr so it will still be printed on the terminal. It cannot be sent to stdout. To suppress it completely, pass "/dev/null".
         shell_config: An instance of ShellConfig that specifies how to interact with the given shell. If your shell is (somewhat) posix-compliant the default should work.
+        subprocess_kwargs: Any other keyword arguments are passed to subprocess.run. By default, check=True is passed. Also, args, input and text are not allowed.
     """
-    return _parse_stdout(
+    check = subprocess_kwargs.pop("check", True)
+    disallowed_kwargs = {"args", "input", "text"}
+    if disallowed_kwargs & subprocess_kwargs.keys():
+        raise TypeError(
+            f"Illegal arguments to source(): {', '.join(disallowed_kwargs & subprocess_kwargs.keys())}"
+        )
+    with TemporaryDirectory() as tmpdir:
+        vars_file = Path(tmpdir) / "vars"
+        stdin = _get_cmds(
+            script=script,
+            vars_file=vars_file,
+            check=check,
+            variables=variables,
+            ignore_locals=ignore_locals,
+            shell_config=shell_config,
+        )
         subprocess.run(
             shlex.split(shell),
-            input=_get_cmds(
-                str(script),
-                check,
-                variables,
-                str(redirect_stdout_to),
-                ignore_locals,
-                shell_config,
-            ),
-            check=check,
-            env=env,
-            stdout=subprocess.PIPE,
+            input=stdin,
             text=True,
-        ).stdout
-    )
+            check=check,
+        )
+        return _parse_vars(vars_file.read_text())
 
 
 _SPLIT_PATTERN = re.compile(r"[\t= ]")
 
 
-def _parse_stdout(stdout: str) -> Dict[str, str]:
+def _parse_vars(stdout: str) -> Dict[str, str]:
     return {
         name: value.strip()
         for name, value in (
@@ -83,24 +86,26 @@ def _split_lines(stdout: str) -> Sequence[str]:
 
 
 def _get_cmds(
-    script: str,
+    *,
+    script: Union[str, Path],
+    vars_file: Path,
     check: bool,
     variables: Collection[str],
-    redirect_stdout_to: str,
     ignore_locals: bool,
     shell_config: ShellConfig,
 ) -> str:
+    """Get a string to be sent to the stdin of the shell."""
     source_cmd = shell_config.source_cmd.format(script=script)
-    redirected = shell_config.redirect_stdout.format(
-        cmd=source_cmd, file=redirect_stdout_to
-    )
     exit_or_true = (
         shell_config.exit_cmd.format(code=shell_config.prev_exit_code)
         if check
         else "true"
     )
-    full_source_cmd = shell_config.boolean_or.format(cmd1=redirected, cmd2=exit_or_true)
-    get_vars_cmds = _get_vars_cmds(variables, ignore_locals, shell_config)
+    full_source_cmd = shell_config.boolean_or.format(cmd1=source_cmd, cmd2=exit_or_true)
+    get_vars_cmds = (
+        shell_config.redirect_stdout.format(cmd=cmd, file=vars_file)
+        for cmd in _get_vars_cmds(variables, ignore_locals, shell_config)
+    )
     return " ;\n".join((full_source_cmd, *get_vars_cmds))
 
 

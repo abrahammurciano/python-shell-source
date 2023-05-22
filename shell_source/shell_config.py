@@ -20,7 +20,7 @@ class ShellConfig:
 
     source_cmd: str = "source {script}"
     exit_cmd: str = "exit {code}"
-    redirect_stdout: str = "{cmd} > {file}"
+    redirect_stdout: str = "{cmd} >> {file}"
     boolean_or: str = "{cmd1} || {cmd2}"
     get_var: str = "${var}"
     get_all_locals: str = "set"

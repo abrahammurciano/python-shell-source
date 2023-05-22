@@ -1,13 +1,15 @@
-from dataclasses import dataclass
 import os
-from pathlib import Path
 import re
 import shlex
 import shutil
 import subprocess
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Dict, Mapping, Optional, TextIO
-from shell_source import source, ShellConfig
+
 import pytest
+
+from shell_source import ShellConfig, source
 
 
 @dataclass
@@ -16,6 +18,7 @@ class Shell:
     setenv: str = "export {name}='{value}'\n"
     setlocal: str = "{name}='{value}'\n"
     config: Optional[ShellConfig] = None
+    argfmt: str = "${{{pos}}}"
 
     @property
     def name(self) -> str:
@@ -51,6 +54,9 @@ class Shell:
         )
         script.flush()
 
+    def get_arg(self, pos: int) -> str:
+        return self.argfmt.format(pos=pos)
+
 
 @pytest.fixture(
     params=[
@@ -77,6 +83,7 @@ class Shell:
                 "fish",
                 setlocal="set {name} '{value}'\n",
                 config=ShellConfig(prev_exit_code="$status"),
+                argfmt="$argv[{pos}]",
             ),
             id="fish",
         ),
@@ -121,6 +128,15 @@ def printing_script(tmpdir: Path, shell: Shell, message: str) -> Path:
     with script.open("w") as f:
         shell.write_script(f)
         f.write(f"echo {message}")
+    return script
+
+
+@pytest.fixture
+def arg_printing_script(tmpdir: Path, shell: Shell) -> Path:
+    script = tmpdir / f"{shell.name}.arg_printing.sh"
+    with script.open("w") as f:
+        shell.write_script(f)
+        f.write(f"echo {shell.get_arg(1)}")
     return script
 
 
@@ -178,29 +194,16 @@ def test_printing_script(
 ):
     source(printing_script, **source_kwargs)
     captured = capfd.readouterr()
-    assert message not in captured.out
-    assert message in captured.err
+    assert message == captured.out.strip()
 
 
-def test_printing_script_to_null(
-    printing_script: Path,
-    message: str,
+def test_arg_printing_script(
+    arg_printing_script: Path,
     capfd: pytest.CaptureFixture,
     source_kwargs: Dict[str, Any],
 ):
-    source(printing_script, redirect_stdout_to="/dev/null", **source_kwargs)
+    message = "Hello, World!"
+    script = f"{arg_printing_script} '{message}'"
+    source(script, **source_kwargs)
     captured = capfd.readouterr()
-    assert message not in captured.out
-    assert message not in captured.err
-
-
-def test_printing_script_to_file(
-    printing_script: Path,
-    message: str,
-    tmpdir: Path,
-    source_kwargs: Dict[str, Any],
-):
-    stdout_log = tmpdir / "source.stdout"
-    source(printing_script, redirect_stdout_to=stdout_log, **source_kwargs)
-    with stdout_log.open() as f:
-        assert message in f.read()
+    assert message == captured.out.strip()

@@ -35,7 +35,7 @@ A python module for sourcing variables from shell scripts …" />
 <p>The full documentation is available <a href="https://abrahammurciano.github.io/python-shell-source/shell_source">here</a></p>
 <h2 id="usage">Usage</h2>
 <p>This module provides a function <code><a title="shell_source.source" href="source.html">shell_source.source</a></code> which attempts to mimic the shell's source command.</p>
-<p>The purpose of this function is to allow you to run a shell script which sets either environment variables or local variables, and then give you access to those variables. Normally this is not a straght-forward task, but this function achieves it by running the script in its intended shell then injecting commands to the shell to print its local variables and its environment variables. Finally it collects the shell's stdout and parses it to return to you with exactly the data you asked for.</p>
+<p>The purpose of this function is to allow you to run a shell script which sets either environment variables or local variables, and then give you access to those variables. Normally this is not a straght-forward task, but this function achieves it by running the script in its intended shell then injecting commands to the shell to write its local variables and its environment variables to a temporary file. Finally it reads the temporary file and parses it to return to you with exactly the data you asked for.</p>
 <h3 id="basic-usage">Basic Usage</h3>
 <p>If you just pass a script and an interpreter you'll get back all the environment variables and local variables visible to and set by the script.</p>
 <pre><code class="language-py">&gt;&gt;&gt; from shell_source import source

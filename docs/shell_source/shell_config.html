@@ -34,7 +34,7 @@
 <dl>
 <dt id="shell_source.shell_config.ShellConfig"><code class="flex name class">
 <span>class <span class="ident">ShellConfig</span></span>
-<span>(</span><span>source_cmd: str = 'source {script}', exit_cmd: str = 'exit {code}', redirect_stdout: str = &#x27;{cmd} &gt; {file}&#x27;, boolean_or: str = '{cmd1} || {cmd2}', get_var: str = '${var}', get_all_locals: str = 'set', prev_exit_code: str = '$?')</span>
+<span>(</span><span>source_cmd: str = 'source {script}', exit_cmd: str = 'exit {code}', redirect_stdout: str = &#x27;{cmd} &gt;&gt; {file}&#x27;, boolean_or: str = '{cmd1} || {cmd2}', get_var: str = '${var}', get_all_locals: str = 'set', prev_exit_code: str = '$?')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>This class instructs this library how to interact with the shell. If you want to use a shell that doesn't behave like most mainstream ones, you can pass an instance of this class to <code>source</code> with the correct string templates.</p>

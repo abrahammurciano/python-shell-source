@@ -9,16 +9,17 @@ from typing import Any, Dict, Mapping, Optional, TextIO
 
 import pytest
 
-from shell_source import ShellConfig, source
+from shell_source import source
+from shell_source.scripters import CshScripter, FishScripter, Scripter
 
 
 @dataclass
-class Shell:
+class ShellTester:
     cmd: str
-    setenv: str = "export {name}='{value}'\n"
-    setlocal: str = "{name}='{value}'\n"
-    config: Optional[ShellConfig] = None
-    argfmt: str = "${{{pos}}}"
+    set_env: str = "export {name}='{value}'\n"
+    set_local: str = "{name}='{value}'\n"
+    argv_fmt: str = "${{{pos}}}"
+    scripter: Optional[Scripter] = None
 
     @property
     def name(self) -> str:
@@ -47,53 +48,54 @@ class Shell:
         script.writelines(
             fmt_str.format(name=name, value=value)
             for variables, fmt_str in (
-                (self.local_variables, self.setlocal),
-                (self.environment_variables, self.setenv),
+                (self.local_variables, self.set_local),
+                (self.environment_variables, self.set_env),
             )
             for name, value in variables.items()
         )
         script.flush()
 
     def get_arg(self, pos: int) -> str:
-        return self.argfmt.format(pos=pos)
+        return self.argv_fmt.format(pos=pos)
 
 
 @pytest.fixture(
     params=[
-        pytest.param(Shell("bash"), id="bash"),
+        pytest.param(ShellTester("bash"), id="bash"),
         pytest.param(
-            Shell(
+            ShellTester(
                 "tcsh",
-                setenv="setenv {name} '{value}'\n",
-                setlocal="set {name}='{value}'\n",
+                set_env="setenv {name} '{value}'\n",
+                set_local="set {name}='{value}'\n",
+                scripter=CshScripter(),
             ),
             id="tcsh",
         ),
         pytest.param(
-            Shell(
+            ShellTester(
                 "csh",
-                setenv="setenv {name} '{value}'\n",
-                setlocal="set {name}='{value}'\n",
-                config=ShellConfig(prev_exit_code="$status"),
+                set_env="setenv {name} '{value}'\n",
+                set_local="set {name}='{value}'\n",
+                scripter=CshScripter(),
             ),
             id="csh",
         ),
         pytest.param(
-            Shell(
+            ShellTester(
                 "fish",
-                setlocal="set {name} '{value}'\n",
-                config=ShellConfig(prev_exit_code="$status"),
-                argfmt="$argv[{pos}]",
+                set_local="set {name} '{value}'\n",
+                argv_fmt="$argv[{pos}]",
+                scripter=FishScripter(),
             ),
             id="fish",
         ),
-        pytest.param(Shell("ksh"), id="ksh"),
-        pytest.param(Shell("zsh"), id="zsh"),
-        pytest.param(Shell("/usr/bin/env bash"), id="env bash"),
+        pytest.param(ShellTester("ksh"), id="ksh"),
+        pytest.param(ShellTester("zsh"), id="zsh"),
+        pytest.param(ShellTester("/usr/bin/env bash"), id="env bash"),
     ]
 )
-def shell(request) -> Shell:
-    shell: Shell = request.param
+def shell(request) -> ShellTester:
+    shell: ShellTester = request.param
     split_cmd = shlex.split(shell.cmd)
     if shutil.which(split_cmd[1 if "env" in split_cmd[0] else 0]):
         return shell
@@ -101,7 +103,7 @@ def shell(request) -> Shell:
 
 
 @pytest.fixture
-def script(tmpdir: Path, shell: Shell) -> Path:
+def script(tmpdir: Path, shell: ShellTester) -> Path:
     script = tmpdir / f"{shell.name}.sh"
     with script.open("w") as f:
         shell.write_script(f)
@@ -109,11 +111,20 @@ def script(tmpdir: Path, shell: Shell) -> Path:
 
 
 @pytest.fixture(params=["exit 1", "false"])
-def failing_script(request, tmpdir: Path, shell: Shell) -> Path:
+def failing_script(request, tmpdir: Path, shell: ShellTester) -> Path:
     script = tmpdir / f"{shell.name}.failing.sh"
     with script.open("w") as f:
         shell.write_script(f)
         f.write(request.param)
+    return script
+
+
+@pytest.fixture
+def exitting_script(request, tmpdir: Path, shell: ShellTester) -> Path:
+    script = tmpdir / f"{shell.name}.exitting.sh"
+    with script.open("w") as f:
+        shell.write_script(f)
+        f.write("exit 0")
     return script
 
 
@@ -123,7 +134,7 @@ def message() -> str:
 
 
 @pytest.fixture
-def printing_script(tmpdir: Path, shell: Shell, message: str) -> Path:
+def printing_script(tmpdir: Path, shell: ShellTester, message: str) -> Path:
     script = tmpdir / f"{shell.name}.printing.sh"
     with script.open("w") as f:
         shell.write_script(f)
@@ -132,7 +143,7 @@ def printing_script(tmpdir: Path, shell: Shell, message: str) -> Path:
 
 
 @pytest.fixture
-def arg_printing_script(tmpdir: Path, shell: Shell) -> Path:
+def arg_printing_script(tmpdir: Path, shell: ShellTester) -> Path:
     script = tmpdir / f"{shell.name}.arg_printing.sh"
     with script.open("w") as f:
         shell.write_script(f)
@@ -148,21 +159,21 @@ def check(request) -> bool:
 
 
 @pytest.fixture
-def source_kwargs(shell: Shell, check: bool) -> Dict[str, Any]:
+def source_kwargs(shell: ShellTester, check: bool) -> Dict[str, Any]:
     return {
         "shell": shell.cmd,
         "check": check,
-        **({"shell_config": shell.config} if shell.config else {}),
+        **({"scripter": shell.scripter} if shell.scripter else {}),
     }
 
 
-def test_all_vars(shell: Shell, script: Path, source_kwargs: Dict[str, Any]):
+def test_all_vars(shell: ShellTester, script: Path, source_kwargs: Dict[str, Any]):
     result = source(script, **source_kwargs)
     for name, value in shell.all_variables.items():
         assert result[name] == value
 
 
-def test_only_env(shell: Shell, script: Path, source_kwargs: Dict[str, Any]):
+def test_only_env(shell: ShellTester, script: Path, source_kwargs: Dict[str, Any]):
     result = source(script, ignore_locals=True, **source_kwargs)
     for name, value in shell.environment_variables.items():
         assert result[name] == value
@@ -170,7 +181,7 @@ def test_only_env(shell: Shell, script: Path, source_kwargs: Dict[str, Any]):
         assert name not in result
 
 
-def test_specific_vars(shell: Shell, script: Path, source_kwargs: Dict[str, Any]):
+def test_specific_vars(shell: ShellTester, script: Path, source_kwargs: Dict[str, Any]):
     variables = (
         list(shell.local_variables)[::2] + list(shell.environment_variables)[::2]
     )
@@ -178,12 +189,23 @@ def test_specific_vars(shell: Shell, script: Path, source_kwargs: Dict[str, Any]
     assert result == {name: shell.all_variables[name] for name in variables}
 
 
-def test_failing_script(shell: Shell, failing_script: Path):
-    shell_config_arg: Dict[str, Any] = (
-        {"shell_config": shell.config} if shell.config else {}
-    )
+def test_failing_script(
+    failing_script: Path, source_kwargs: Dict[str, Any], check: bool
+):
+    if not check:
+        pytest.skip("No need to test failing script with check=False.")
     with pytest.raises(subprocess.CalledProcessError):
-        source(failing_script, shell=shell.cmd, check=True, **shell_config_arg)
+        source(failing_script, **source_kwargs)
+
+
+def test_exitting_script(
+    exitting_script: Path, source_kwargs: Dict[str, Any], check: bool
+):
+    if check:
+        pytest.skip("No need to test exitting script with check=True.")
+    result = source(exitting_script, **source_kwargs)
+    for name, value in result.items():
+        assert result[name] == value
 
 
 def test_printing_script(

@@ -21,4 +21,5 @@ except metadata.PackageNotFoundError:
     )
 
 from .source import source
-from .shell_config import ShellConfig
+
+__all__ = ("source",)

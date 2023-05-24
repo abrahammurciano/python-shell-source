@@ -37,7 +37,7 @@ If you just pass a script and an interpreter you'll get back all the environment
 If you specify the argument `variables`, then only those variables you passed will be present as keys in the returned dictionary.
 
 ```py
->>> source("path/to/script.sh", "csh", variables=("foo", "bar", "biz"))
+>>> source("path/to/script.sh", "zsh", variables=("foo", "bar", "biz"))
 {"foo": ..., "bar": ..., "biz", ...}
 ```
 
@@ -45,18 +45,30 @@ If you specify the argument `variables`, then only those variables you passed wi
 
 If you don't want to obtain any local variables set by the script, but only want the environment variables, you can pass `ignore_locals=True`.
 
-### Supporting Different Shells
+### Passing Arguments to the shell
 
-This module has been tested to work with `bash`, `zsh`, `tcsh`, and `ksh`. You can use any other shell that's somewhat posix compliant and supports the keyword "source", but it it doesn't work, you may use the `ShellConfig` class to indicate to `source` how to interact with your shell.
-
-The class `ShellConfig` contains several string templates which are used to run the necessary commands with the shell. If the shell you want to use doesn't support any of the commands set by default in that class, you can pass an instance of `ShellConfig` to `source` to override the default templates.
-
-For example, `csh` and `fish` are not supported by default, (specifically because they don't have the variable `$?` to get the exit status of the last command,) but we can source a script for one of these shells anyways by passing a `ShellConfig` instance which will declare how to get the exit code of the previous command.
+If you want to pass arguments to the shell, for example `-x` or `-e`, you can pass it directly in the `shell` argument.
 
 ```py
-source(
-	"path/to/script.csh",
-	"csh",
-	shell_config=ShellConfig(prev_exit_code="$status")
-)
+>>> source("path/to/script.sh", "bash -x")
+```
+
+### Passing Arguments to the script
+
+If you want to pass arguments to the script being sourced, you can pass them in the `args` argument.
+
+```py
+>>> source("path/to/script.sh", "bash", args=("foo", "bar"))
+```
+
+### Supporting Different Shells
+
+This module has been tested to work with `bash`, `zsh`, and `ksh` out of the box. You can use any other shell that's somewhat posix compliant, but it it doesn't work, you may have to create a class derived from the `Scripter` class to indicate to `source` how to interact with the shell you want to use.
+
+Some specialized implementations of `Scripter` are provided in `shell_source.scripters` for shells that are not posix compliant, such as `csh`, `tcsh` and `fish`.
+
+For example, to use `tcsh` to source a script, you can use the `CshScripter` class like so:
+
+```py
+>>> source("path/to/script.csh", "tcsh", scripter=CshScripter())
 ```

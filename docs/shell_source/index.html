@@ -34,7 +34,7 @@ A python module for sourcing variables from shell scripts …" />
 <h2 id="documentation">Documentation</h2>
 <p>The full documentation is available <a href="https://abrahammurciano.github.io/python-shell-source/shell_source">here</a></p>
 <h2 id="usage">Usage</h2>
-<p>This module provides a function <code><a title="shell_source.source" href="source.html">shell_source.source</a></code> which attempts to mimic the shell's source command.</p>
+<p>This module provides a function <code><a title="shell_source.source" href="#shell_source.source">source()</a></code> which attempts to mimic the shell's source command.</p>
 <p>The purpose of this function is to allow you to run a shell script which sets either environment variables or local variables, and then give you access to those variables. Normally this is not a straght-forward task, but this function achieves it by running the script in its intended shell then injecting commands to the shell to write its local variables and its environment variables to a temporary file. Finally it reads the temporary file and parses it to return to you with exactly the data you asked for.</p>
 <h3 id="basic-usage">Basic Usage</h3>
 <p>If you just pass a script and an interpreter you'll get back all the environment variables and local variables visible to and set by the script.</p>
@@ -46,38 +46,67 @@ A python module for sourcing variables from shell scripts …" />
 </code></pre>
 <h3 id="requesting-specific-variables">Requesting Specific Variables</h3>
 <p>If you specify the argument <code>variables</code>, then only those variables you passed will be present as keys in the returned dictionary.</p>
-<pre><code class="language-py">&gt;&gt;&gt; source(&quot;path/to/script.sh&quot;, &quot;csh&quot;, variables=(&quot;foo&quot;, &quot;bar&quot;, &quot;biz&quot;))
+<pre><code class="language-py">&gt;&gt;&gt; source(&quot;path/to/script.sh&quot;, &quot;zsh&quot;, variables=(&quot;foo&quot;, &quot;bar&quot;, &quot;biz&quot;))
 {&quot;foo&quot;: ..., &quot;bar&quot;: ..., &quot;biz&quot;, ...}
 </code></pre>
 <h3 id="ignoring-local-variables">Ignoring Local Variables</h3>
 <p>If you don't want to obtain any local variables set by the script, but only want the environment variables, you can pass <code>ignore_locals=True</code>.</p>
+<h3 id="passing-arguments-to-the-shell">Passing Arguments to the shell</h3>
+<p>If you want to pass arguments to the shell, for example <code>-x</code> or <code>-e</code>, you can pass it directly in the <code>shell</code> argument.</p>
+<pre><code class="language-py">&gt;&gt;&gt; source(&quot;path/to/script.sh&quot;, &quot;bash -x&quot;)
+</code></pre>
+<h3 id="passing-arguments-to-the-script">Passing Arguments to the script</h3>
+<p>If you want to pass arguments to the script being sourced, you can pass them in the <code>args</code> argument.</p>
+<pre><code class="language-py">&gt;&gt;&gt; source(&quot;path/to/script.sh&quot;, &quot;bash&quot;, args=(&quot;foo&quot;, &quot;bar&quot;))
+</code></pre>
 <h3 id="supporting-different-shells">Supporting Different Shells</h3>
-<p>This module has been tested to work with <code>bash</code>, <code>zsh</code>, <code>tcsh</code>, and <code>ksh</code>. You can use any other shell that's somewhat posix compliant and supports the keyword "source", but it it doesn't work, you may use the <code>ShellConfig</code> class to indicate to <code><a title="shell_source.source" href="source.html">shell_source.source</a></code> how to interact with your shell.</p>
-<p>The class <code>ShellConfig</code> contains several string templates which are used to run the necessary commands with the shell. If the shell you want to use doesn't support any of the commands set by default in that class, you can pass an instance of <code>ShellConfig</code> to <code><a title="shell_source.source" href="source.html">shell_source.source</a></code> to override the default templates.</p>
-<p>For example, <code>csh</code> and <code>fish</code> are not supported by default, (specifically because they don't have the variable <code>$?</code> to get the exit status of the last command,) but we can source a script for one of these shells anyways by passing a <code>ShellConfig</code> instance which will declare how to get the exit code of the previous command.</p>
-<pre><code class="language-py">source(
-    &quot;path/to/script.csh&quot;,
-    &quot;csh&quot;,
-    shell_config=ShellConfig(prev_exit_code=&quot;$status&quot;)
-)
+<p>This module has been tested to work with <code>bash</code>, <code>zsh</code>, and <code>ksh</code> out of the box. You can use any other shell that's somewhat posix compliant, but it it doesn't work, you may have to create a class derived from the <code>Scripter</code> class to indicate to <code><a title="shell_source.source" href="#shell_source.source">source()</a></code> how to interact with the shell you want to use.</p>
+<p>Some specialized implementations of <code>Scripter</code> are provided in <code><a title="shell_source.scripters" href="scripters/index.html">shell_source.scripters</a></code> for shells that are not posix compliant, such as <code>csh</code>, <code>tcsh</code> and <code>fish</code>.</p>
+<p>For example, to use <code>tcsh</code> to source a script, you can use the <code>CshScripter</code> class like so:</p>
+<pre><code class="language-py">&gt;&gt;&gt; source(&quot;path/to/script.csh&quot;, &quot;tcsh&quot;, scripter=CshScripter())
 </code></pre>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="shell_source.shell_config" href="shell_config.html">shell_source.shell_config</a></code></dt>
+<dt><code class="name"><a title="shell_source.scripters" href="scripters/index.html">shell_source.scripters</a></code></dt>
 <dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="shell_source.source" href="source.html">shell_source.source</a></code></dt>
-<dd>
-<div class="desc"></div>
+<div class="desc"><p>Scripters can be passed to <code><a title="shell_source.source" href="#shell_source.source">source()</a></code> to allow it to interact with different shells …</p></div>
 </dd>
 </dl>
 </section>
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="shell_source.source"><code class="name flex">
+<span>def <span class="ident">source</span></span>(<span>script: Union[str, pathlib.Path], shell: str = 'sh', *, args: Iterable[str] = (), variables: Collection[str] = (), ignore_locals: bool = False, scripter: <a title="shell_source.scripters.scripter.Scripter" href="scripters/scripter.html#shell_source.scripters.scripter.Scripter">Scripter</a> = &lt;shell_source.scripters.scripter.Scripter object&gt;, **subprocess_kwargs) ‑> Dict[str, str]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run a shell script and return its variables as a dictionary.</p>
+<blockquote>
+<p>NOTE: If the script defines variables with newlines in their values it is undefined behaviour, though it will not raise an exception.</p>
+</blockquote>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>script</code></strong></dt>
+<dd>The shell script to source. It may contain arguments, file redirections, etc so long as it is supported by the shell you give.</dd>
+<dt><strong><code>shell</code></strong></dt>
+<dd>The shell to use. If the shell you give is in the path it's name suffices, otherwise give the path to it. You may also pass flags, such as -x or -e. Default is "sh".</dd>
+<dt><strong><code>args</code></strong></dt>
+<dd>Any extra arguments to pass to the sourced script. Default is no arguments.</dd>
+<dt><strong><code>variables</code></strong></dt>
+<dd>The names of the variables set in the script to return. By default, all variables are returned.</dd>
+<dt><strong><code>ignore_locals</code></strong></dt>
+<dd>If True, no local variables set by the script are returned. Default is False.</dd>
+<dt><strong><code>scripter</code></strong></dt>
+<dd>An instance of Scripter that knows how to interact with the given shell. If your shell is (somewhat) posix-compliant the default should work. <code>csh</code> and <code>tcsh</code> must use <code>CshScripter</code>.</dd>
+<dt><strong><code>subprocess_kwargs</code></strong></dt>
+<dd>Any other keyword arguments are passed to subprocess.run. By default, check=True is passed. Also, args, input and text are not allowed.</dd>
+</dl></div>
+</dd>
+</dl>
 </section>
 <section>
 </section>
@@ -93,6 +122,8 @@ A python module for sourcing variables from shell scripts …" />
 <li><a href="#basic-usage">Basic Usage</a></li>
 <li><a href="#requesting-specific-variables">Requesting Specific Variables</a></li>
 <li><a href="#ignoring-local-variables">Ignoring Local Variables</a></li>
+<li><a href="#passing-arguments-to-the-shell">Passing Arguments to the shell</a></li>
+<li><a href="#passing-arguments-to-the-script">Passing Arguments to the script</a></li>
 <li><a href="#supporting-different-shells">Supporting Different Shells</a></li>
 </ul>
 </li>
@@ -103,8 +134,12 @@ A python module for sourcing variables from shell scripts …" />
 <ul id="index">
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="shell_source.shell_config" href="shell_config.html">shell_source.shell_config</a></code></li>
-<li><code><a title="shell_source.source" href="source.html">shell_source.source</a></code></li>
+<li><code><a title="shell_source.scripters" href="scripters/index.html">shell_source.scripters</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="shell_source.source" href="#shell_source.source">source</a></code></li>
 </ul>
 </li>
 </ul>

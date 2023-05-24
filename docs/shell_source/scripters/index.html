@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>shell_source.scripters API documentation</title>
+<meta name="description" content="Scripters can be passed to `source()` to allow it to interact with different shells …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>shell_source.scripters</code></h1>
+</header>
+<section id="section-intro">
+<p>Scripters can be passed to <code>source()</code> to allow it to interact with different shells.</p>
+<p>The default <code><a title="shell_source.scripters.Scripter" href="#shell_source.scripters.Scripter">Scripter</a></code> is for (mostly) posix-compliant shells. If your shell is not posix-compliant, you must pass a specialized Scripter to <code>source()</code>. It is known to work with <code>bash</code>, <code>zsh</code>, <code>ksh</code>, and <code>fish</code>.</p>
+<p>This module also provides a specialized <code><a title="shell_source.scripters.Scripter" href="#shell_source.scripters.Scripter">Scripter</a></code> for csh and tcsh called <code><a title="shell_source.scripters.CshScripter" href="#shell_source.scripters.CshScripter">CshScripter</a></code>.</p>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="shell_source.scripters.csh_scripter" href="csh_scripter.html">shell_source.scripters.csh_scripter</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="shell_source.scripters.fish_scripter" href="fish_scripter.html">shell_source.scripters.fish_scripter</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="shell_source.scripters.scripter" href="scripter.html">shell_source.scripters.scripter</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="shell_source.scripters.CshScripter"><code class="flex name class">
+<span>class <span class="ident">CshScripter</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>A specialized Scripter for csh. Pass a instance of this class to <code>source</code> to source csh scripts.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="shell_source.scripters.scripter.Scripter" href="scripter.html#shell_source.scripters.scripter.Scripter">Scripter</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="shell_source.scripters.CshScripter.forward_status"><code class="name flex">
+<span>def <span class="ident">forward_status</span></span>(<span>self, command: str) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get a command that saves the current exit status of the previous command, runs a command, then restores the exit status.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>command</code></strong></dt>
+<dd>The command to run.</dd>
+</dl></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="shell_source.scripters.scripter.Scripter" href="scripter.html#shell_source.scripters.scripter.Scripter">Scripter</a></b></code>:
+<ul class="hlist">
+<li><code><a title="shell_source.scripters.scripter.Scripter.dereference" href="scripter.html#shell_source.scripters.scripter.Scripter.dereference">dereference</a></code></li>
+<li><code><a title="shell_source.scripters.scripter.Scripter.print_env" href="scripter.html#shell_source.scripters.scripter.Scripter.print_env">print_env</a></code></li>
+<li><code><a title="shell_source.scripters.scripter.Scripter.print_locals" href="scripter.html#shell_source.scripters.scripter.Scripter.print_locals">print_locals</a></code></li>
+<li><code><a title="shell_source.scripters.scripter.Scripter.print_variables" href="scripter.html#shell_source.scripters.scripter.Scripter.print_variables">print_variables</a></code></li>
+<li><code><a title="shell_source.scripters.scripter.Scripter.redirect" href="scripter.html#shell_source.scripters.scripter.Scripter.redirect">redirect</a></code></li>
+<li><code><a title="shell_source.scripters.scripter.Scripter.script" href="scripter.html#shell_source.scripters.scripter.Scripter.script">script</a></code></li>
+<li><code><a title="shell_source.scripters.scripter.Scripter.source" href="scripter.html#shell_source.scripters.scripter.Scripter.source">source</a></code></li>
+<li><code><a title="shell_source.scripters.scripter.Scripter.trap" href="scripter.html#shell_source.scripters.scripter.Scripter.trap">trap</a></code></li>
+<li><code><a title="shell_source.scripters.scripter.Scripter.write_variables" href="scripter.html#shell_source.scripters.scripter.Scripter.write_variables">write_variables</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="shell_source.scripters.FishScripter"><code class="flex name class">
+<span>class <span class="ident">FishScripter</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>A specialized Scripter for fish. Pass a instance of this class to <code>source</code> to source fish scripts.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="shell_source.scripters.scripter.Scripter" href="scripter.html#shell_source.scripters.scripter.Scripter">Scripter</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="shell_source.scripters.scripter.Scripter" href="scripter.html#shell_source.scripters.scripter.Scripter">Scripter</a></b></code>:
+<ul class="hlist">
+<li><code><a title="shell_source.scripters.scripter.Scripter.dereference" href="scripter.html#shell_source.scripters.scripter.Scripter.dereference">dereference</a></code></li>
+<li><code><a title="shell_source.scripters.scripter.Scripter.print_env" href="scripter.html#shell_source.scripters.scripter.Scripter.print_env">print_env</a></code></li>
+<li><code><a title="shell_source.scripters.scripter.Scripter.print_locals" href="scripter.html#shell_source.scripters.scripter.Scripter.print_locals">print_locals</a></code></li>
+<li><code><a title="shell_source.scripters.scripter.Scripter.print_variables" href="scripter.html#shell_source.scripters.scripter.Scripter.print_variables">print_variables</a></code></li>
+<li><code><a title="shell_source.scripters.scripter.Scripter.redirect" href="scripter.html#shell_source.scripters.scripter.Scripter.redirect">redirect</a></code></li>
+<li><code><a title="shell_source.scripters.scripter.Scripter.script" href="scripter.html#shell_source.scripters.scripter.Scripter.script">script</a></code></li>
+<li><code><a title="shell_source.scripters.scripter.Scripter.source" href="scripter.html#shell_source.scripters.scripter.Scripter.source">source</a></code></li>
+<li><code><a title="shell_source.scripters.scripter.Scripter.trap" href="scripter.html#shell_source.scripters.scripter.Scripter.trap">trap</a></code></li>
+<li><code><a title="shell_source.scripters.scripter.Scripter.write_variables" href="scripter.html#shell_source.scripters.scripter.Scripter.write_variables">write_variables</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="shell_source.scripters.Scripter"><code class="flex name class">
+<span>class <span class="ident">Scripter</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>This class writes scripts to be executed by a shell.</p>
+<p>This class tries to be compatible with most shells. If you want to use a shell that doesn't behave like most mainstream ones, you can extend this class and pass an instance to <code>source</code>. Some specialized subclasses are provided for some shells.</p></div>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="shell_source.scripters.csh_scripter.CshScripter" href="csh_scripter.html#shell_source.scripters.csh_scripter.CshScripter">CshScripter</a></li>
+<li><a title="shell_source.scripters.fish_scripter.FishScripter" href="fish_scripter.html#shell_source.scripters.fish_scripter.FishScripter">FishScripter</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="shell_source.scripters.Scripter.dereference"><code class="name flex">
+<span>def <span class="ident">dereference</span></span>(<span>self, variable: str) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get a command that dereferences the value of a variable.</p>
+<p>The default implementation uses <code>${variable}</code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>variable</code></strong></dt>
+<dd>The name of the variable to print.</dd>
+</dl></div>
+</dd>
+<dt id="shell_source.scripters.Scripter.print_env"><code class="name flex">
+<span>def <span class="ident">print_env</span></span>(<span>self) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get a command that prints all environment variables.</p>
+<p>The default implementation uses <code>env</code>.</p></div>
+</dd>
+<dt id="shell_source.scripters.Scripter.print_locals"><code class="name flex">
+<span>def <span class="ident">print_locals</span></span>(<span>self) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get a command that prints all local variables.</p>
+<p>The default implementation uses <code>set</code>.</p></div>
+</dd>
+<dt id="shell_source.scripters.Scripter.print_variables"><code class="name flex">
+<span>def <span class="ident">print_variables</span></span>(<span>self, variables: Collection[str], ignore_locals: bool) ‑> Iterable[str]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get a series of commands that, when executed sequentially, print the requested variables.</p>
+<p>Each variable must be printed in the format <code>name=value&lt;newline&gt;</code> or <code>name&lt;tab&gt;value&lt;newline&gt;</code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>variables</code></strong></dt>
+<dd>The names of the variables set in the script to print. By default, all local and environment variables are printed.</dd>
+<dt><strong><code>ignore_locals</code></strong></dt>
+<dd>If True, local variables not printed. Default is False.</dd>
+</dl></div>
+</dd>
+<dt id="shell_source.scripters.Scripter.redirect"><code class="name flex">
+<span>def <span class="ident">redirect</span></span>(<span>self, command: str, output_file: pathlib.Path) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get a command that redirects the stdout of a command to a file.</p>
+<p>The default implementation uses <code>&gt;&gt;</code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>command</code></strong></dt>
+<dd>The command to redirect.</dd>
+<dt><strong><code>output_file</code></strong></dt>
+<dd>The file to redirect to.</dd>
+</dl></div>
+</dd>
+<dt id="shell_source.scripters.Scripter.script"><code class="name flex">
+<span>def <span class="ident">script</span></span>(<span>self, script: Union[str, pathlib.Path], vars_file: pathlib.Path, *, args: Iterable[str] = (), variables: Collection[str] = (), ignore_locals: bool = False) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a script that sources another script and writes its variables to a file.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>script</code></strong></dt>
+<dd>The shell script to source.</dd>
+<dt><strong><code>vars_file</code></strong></dt>
+<dd>The file to write the variables to.</dd>
+<dt><strong><code>args</code></strong></dt>
+<dd>Any extra arguments to pass to the sourced script. Default is no arguments.</dd>
+<dt><strong><code>variables</code></strong></dt>
+<dd>The names of the variables set in the script to return. By default, all variables are returned.</dd>
+<dt><strong><code>ignore_locals</code></strong></dt>
+<dd>If True, no local variables set by the script are returned. Default is False.</dd>
+</dl></div>
+</dd>
+<dt id="shell_source.scripters.Scripter.source"><code class="name flex">
+<span>def <span class="ident">source</span></span>(<span>self, script: Union[str, pathlib.Path], args: Iterable[str]) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get a command to source a script.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>script</code></strong></dt>
+<dd>The script to source.</dd>
+</dl></div>
+</dd>
+<dt id="shell_source.scripters.Scripter.trap"><code class="name flex">
+<span>def <span class="ident">trap</span></span>(<span>self, command: str) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get a command that sets a trap to execute a command on exit.</p>
+<p>The default implementation uses <code>trap 'command' EXIT</code>. For shells which don't immediately exit when a sourced script calls exit, and also don't support trap (such as <code>csh</code> and <code>tcsh</code>) you should override <code>script</code> to not call <code>trap</code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>command</code></strong></dt>
+<dd>The command to execute on exit.</dd>
+</dl></div>
+</dd>
+<dt id="shell_source.scripters.Scripter.write_variables"><code class="name flex">
+<span>def <span class="ident">write_variables</span></span>(<span>self, output_file: pathlib.Path, variables: Collection[str], ignore_locals: bool) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get a command that writes the requested variables to a file.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>output_file</code></strong></dt>
+<dd>The file to write the variables to.</dd>
+<dt><strong><code>variables</code></strong></dt>
+<dd>The names of the variables set in the script to write. By default, all local and environment variables are written.</dd>
+<dt><strong><code>ignore_locals</code></strong></dt>
+<dd>If True, local variables not written. Default is False.</dd>
+</dl></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="shell_source" href="../index.html">shell_source</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="shell_source.scripters.csh_scripter" href="csh_scripter.html">shell_source.scripters.csh_scripter</a></code></li>
+<li><code><a title="shell_source.scripters.fish_scripter" href="fish_scripter.html">shell_source.scripters.fish_scripter</a></code></li>
+<li><code><a title="shell_source.scripters.scripter" href="scripter.html">shell_source.scripters.scripter</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="shell_source.scripters.CshScripter" href="#shell_source.scripters.CshScripter">CshScripter</a></code></h4>
+<ul class="">
+<li><code><a title="shell_source.scripters.CshScripter.forward_status" href="#shell_source.scripters.CshScripter.forward_status">forward_status</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="shell_source.scripters.FishScripter" href="#shell_source.scripters.FishScripter">FishScripter</a></code></h4>
+</li>
+<li>
+<h4><code><a title="shell_source.scripters.Scripter" href="#shell_source.scripters.Scripter">Scripter</a></code></h4>
+<ul class="two-column">
+<li><code><a title="shell_source.scripters.Scripter.dereference" href="#shell_source.scripters.Scripter.dereference">dereference</a></code></li>
+<li><code><a title="shell_source.scripters.Scripter.print_env" href="#shell_source.scripters.Scripter.print_env">print_env</a></code></li>
+<li><code><a title="shell_source.scripters.Scripter.print_locals" href="#shell_source.scripters.Scripter.print_locals">print_locals</a></code></li>
+<li><code><a title="shell_source.scripters.Scripter.print_variables" href="#shell_source.scripters.Scripter.print_variables">print_variables</a></code></li>
+<li><code><a title="shell_source.scripters.Scripter.redirect" href="#shell_source.scripters.Scripter.redirect">redirect</a></code></li>
+<li><code><a title="shell_source.scripters.Scripter.script" href="#shell_source.scripters.Scripter.script">script</a></code></li>
+<li><code><a title="shell_source.scripters.Scripter.source" href="#shell_source.scripters.Scripter.source">source</a></code></li>
+<li><code><a title="shell_source.scripters.Scripter.trap" href="#shell_source.scripters.Scripter.trap">trap</a></code></li>
+<li><code><a title="shell_source.scripters.Scripter.write_variables" href="#shell_source.scripters.Scripter.write_variables">write_variables</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

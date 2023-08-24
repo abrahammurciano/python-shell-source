@@ -4,7 +4,7 @@ import shlex
 import subprocess
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Collection, Dict, Iterable, Sequence, Union
+from typing import Any, Collection, Dict, Iterable, Sequence, Union
 
 from .scripters import Scripter
 
@@ -19,7 +19,7 @@ def source(
     variables: Collection[str] = (),
     ignore_locals: bool = False,
     scripter: Scripter = Scripter(),
-    **subprocess_kwargs,
+    **subprocess_kwargs: Any,
 ) -> Dict[str, str]:
     """Run a shell script and return its variables as a dictionary.
 
